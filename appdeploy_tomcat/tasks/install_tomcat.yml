@@ -1,0 +1,53 @@
+---
+- name: download tomcat binary
+  get_url:
+    url: https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.9/bin/apache-tomcat-8.5.9.tar.gz
+    dest: /opt
+ 
+- name: extract the downloaded tar.gz 
+  unarchive: 
+    src: /opt/apache-tomcat-8.5.9.tar.gz
+    dest: /opt/
+    remote_src: yes
+  #command: tar -zxvf /opt/apache-tomcat-8.5.9.tar.gz -C /opt/
+  # tar -zxf /opt/apache-tomcat-8.5.9.tar.gz -C /opt/tomcat
+
+- name: make tomcat directory
+  file:
+    path: /opt/apache-tomcat-8.5.9
+    state: directory
+    mode: 0755
+    owner: tomcat
+    group: tomcat
+    recurse: yes
+
+- name: move apache-tomcat-8.5.9 to tomcat
+  file:
+    src: /opt/apache-tomcat-8.5.9
+    dest: /opt/tomcat
+    state: link 
+
+- name: copy context.xml, to allow access from external hosts
+  copy:
+    src: files/context.xml
+    dest: /opt/tomcat/webapps/manager/META-INF/
+  notify:
+  - restart tomcat service
+
+- name: copy tomcat-users.xml to allow login
+  copy:
+    src: files/tomcat-users.xml
+    dest: /opt/tomcat/conf/
+  notify:
+  - restart tomcat service
+
+- name: create the tomcat service file
+  copy:
+    src: files/tomcat.service 
+    dest: /etc/systemd/system/
+
+- name: enable tomcat service
+  service:
+    name: tomcat
+    state: started
+    enabled: yes

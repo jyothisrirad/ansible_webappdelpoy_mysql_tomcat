@@ -1,0 +1,4 @@
+---
+# vars file for ansible-mysql
+NEW_mysql_root_password: Mysql@123
+mysql_root_password: Mysql@123

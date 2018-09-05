@@ -1,0 +1,12 @@
+---
+- name: copy maven artifact from repository
+  maven_artifact:
+    group_id: com.mywebsite
+    artifact_id: emusicstore
+    extension: war
+    repository_url: http://192.168.56.101:8081/artifactory/libs-snapshot-local
+    username: admin
+    password: artifactory@123
+    dest: /opt/tomcat/webapps/emusicstore.war
+  notify:
+  - restart tomcat service

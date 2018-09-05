@@ -1,0 +1,4 @@
+---
+- import_tasks: basic.yml
+- import_tasks: install_tomcat.yml
+- import_tasks: update_emusic.yml

@@ -1,0 +1,73 @@
+---
+# tasks file for ansible-mysql
+- name: make sure wget installed
+  yum:
+    name: wget
+    state: installed
+
+- name: download mysql repo rpm
+  get_url:
+    url: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+    dest: /tmp
+
+- name: install download mysql repo rpm
+  command:
+    rpm -ivh /tmp/mysql-community-release-el7-5.noarch.rpm
+  ignore_errors: yes
+
+- name: install mysql server
+  yum: name=mysql-server state=present
+
+- name: Install MySQL-python, to help remove anonymous user
+  yum: name=MySQL-python state=present
+
+#- name: download mysql repo
+#  yum_repository:
+#    name: mysql-community.repo
+#    description: MySQL 5.7 Community Server
+#    file: external_repos
+#    baseurl: http://repo.mysql.com/yum/mysql-5.7-community/el/7/$basearch/
+#    enabled: yes
+
+#- name: install mysql
+#  yum:
+#    name: "{{ item }}"
+#  with_items:
+#    - "mysql-server"
+#    - "mysql-common"
+#    - "mysql-client"
+#    - "mysql-libs"
+#    - "python-mysqldb"
+ #state: installed
+
+- name: start mysql service
+  service:
+    name: mysqld
+    state: running
+
+- name: remove test db
+  mysql_db: name=test state=absent
+    login_user=root
+    login_password={{ NEW_mysql_root_password }}
+
+- name: Remove All Anonymous User Accounts
+  mysql_user: name=host_all=yes state=absent
+    login_user=root
+    login_password={{ NEW_mysql_root_password }}
+
+- name: set mysql root password
+  mysql_user:
+    #password=Mysql@123
+    check_implicit_admin=yes
+    login_user=root
+    login_password={{ mysql_root_password }}
+    user=root
+    password={{ NEW_mysql_root_password }}
+    host={{ item }}
+    priv='*.*:ALL,GRANT'
+  with_items:
+      - localhost
+      - 127.0.0.1
+      - "{{ ansible_hostname }}"
+  become: true
+  ignore_errors: true

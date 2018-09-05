@@ -1,0 +1,6 @@
+---
+# handlers file for emusic_tomcat
+- name: restart tomcat service
+  service:
+    name: tomcat
+    state: restarted

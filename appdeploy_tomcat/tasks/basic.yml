@@ -1,0 +1,17 @@
+---
+- name: Install java
+  yum: 
+    name: java-1.8.0-openjdk
+    state: present
+
+- name: Create tomcat group
+  group:
+    name: tomcat
+    state: present
+
+- name: add user Tomcat
+  user:
+    name: tomcat
+    groups: tomcat
+    shell: /bin/nologin
+    create_home: no
